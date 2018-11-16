@@ -119,8 +119,15 @@ def converter(source_folder, images_json_file, categories_json_file,
 
     print("Writing final JSON in {}".format(predictions_json_file))
     d_coco['annotations'] = annotations
+
+    def default(o):
+      # np.int64 cannot be serialized
+      if isinstance(o, np.int64):
+          return np.int32(o)  
+      raise TypeError
+
     with open(predictions_json_file, 'w') as f:
-        json.dump(d_coco, f)
+        json.dump(d_coco, f, default=default)
 
     t_delta = time.time() - start_time
     print("Time elapsed: {:0.2f} seconds".format(t_delta))
